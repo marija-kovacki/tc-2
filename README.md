@@ -2,10 +2,6 @@
 
 Includes search functionality and a burst indicator.
 
-Planned features:
-
-Tests
-
 Getting started:
 
 # Navigate to the project folder
