@@ -4,9 +4,7 @@ Includes search functionality and a burst indicator.
 
 Planned features:
 
-React Router for word-details display
-
-Select element for filtering by “burst” or default view
+Tests
 
 Getting started:
 

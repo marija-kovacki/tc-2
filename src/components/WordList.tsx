@@ -1,6 +1,6 @@
 import { getColor, getFontSize } from '../utils/helpers'
 import type { Word } from '../types'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 type WordListProps = {
   words: Word[]
@@ -9,18 +9,24 @@ type WordListProps = {
 
 export default function WordList({ words, onWordClick }: WordListProps) {
   const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<'default' | 'burst'>('default')
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
   }
 
-  const filteredWords = words.filter((word) => {
-    return word.label.toLowerCase().includes(search)
-  })
+  const filteredWords = useMemo(
+    () => words.filter((word) => word.label.toLowerCase().includes(search.toLowerCase())),
+    [words, search]
+  )
+
+  const sortedWords = useMemo(() => {
+    if (sort === 'default') return filteredWords
+    return [...filteredWords].sort((a, b) => (b.burst ?? 0) - (a.burst ?? 0))
+  }, [filteredWords, sort])
 
   return (
     <>
-      {/* Wordlist header */}
       <div className="border-b-2 border-white">
         <h1 className="flex flex-wrap justify-center pt-6 text-4xl font-bold text-white">
           Topics
@@ -49,11 +55,11 @@ export default function WordList({ words, onWordClick }: WordListProps) {
           </span>
         </h1>
         <p className="pt-1 pb-6 text-center text-sm text-gray-300 italic">
-          Relevant topcis. At a glance.
+          Relevant topics. At a glance.
         </p>
       </div>
 
-      <div className="flex items-center justify-center pt-8">
+      <div className="flex items-center justify-around gap-3 pt-8 pb-8">
         <input
           id="searchInput"
           type="text"
@@ -61,14 +67,31 @@ export default function WordList({ words, onWordClick }: WordListProps) {
           onChange={handleSearch}
           placeholder="Search term..."
           maxLength={12}
-          className="w-[300px] outline-none border-t-0 border-x-0 border-b-2 p-1 border-white text-white"
+          className="w-[300px] outline-none border-t-0 border-x-0 border-b-2 p-1 border-white text-white bg-transparent placeholder:text-gray-300"
+          aria-label="Search topics"
         />
+        <label htmlFor="sortBy" className="sr-only">
+          Sort by
+        </label>
+        <select
+          id="sortBy"
+          value={sort}
+          onChange={(e) => setSort(e.target.value as 'default' | 'burst')}
+          className="border border-white/60 text-white bg-transparent rounded px-2 py-1 outline-none hover:cursor-pointer"
+          aria-label="Sort topics"
+        >
+          <option value="default" className="text-black">
+            Default
+          </option>
+          <option value="burst" className="text-black">
+            Burst
+          </option>
+        </select>
       </div>
 
-      {/* Wordlist */}
       <div className="max-w-lvh grid xl:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 auto-rows-[100px] gap-2 m-auto py-6 px-5">
-        {filteredWords.length > 0 ? (
-          filteredWords.map((word) => (
+        {sortedWords.length > 0 ? (
+          sortedWords.map((word) => (
             <div
               key={word.id}
               role="button"
@@ -89,8 +112,8 @@ export default function WordList({ words, onWordClick }: WordListProps) {
           ))
         ) : (
           <p className="col-span-full text-center text-white">
-            Sorry! There is currently no topic for{' '}
-            <span className="capitalize font-bold">{search}.</span>
+            Sorry! There is currently no topic for
+            <span className="capitalize font-bold"> {search}.</span>
           </p>
         )}
       </div>
