@@ -1,6 +1,6 @@
 # Topics Challenge v2
 
-Includes search functionality and a burst indicator.
+Includes search functionality, sort functionality and a burst indicator.
 
 Getting started:
 
